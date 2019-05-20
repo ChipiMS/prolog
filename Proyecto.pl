@@ -1,13 +1,33 @@
+:- module(
+  sistema,
+  [
+    agregar_enf/2, % +Nombre:atom, +Sintomas:List
+    enf_bd/2 % ?Nombre:atom, ?Sintomas:List
+  ]
+).
+
+:- use_module(library(persistency)).
+
+:- persistent(enf(nombre:atom, sintomas:List)).
+
+:- initialization(db_attach('enf.dbs.pl', [])).
+
+agregar_enf(Nombre, Sintomas):-
+  with_mutex(enfermedades_bd, assert_enf(Nombre, Sintomas)).
+
+enf_bd(Nombre, Sintomas):-
+  with_mutex(enfermedades_bd, enf(Nombre, Sintomas)).
+
 presenta :-
     write("Instituto tecnológico de Celaya"), nl,
     write("Sistema de diagnostico de enfermedades respiratorias"), nl,
     write("Aplicación de encadenamiento hacia atrás"), nl,
     write("Celaya, Guanajuato, México"), nl,
-    write("Presiona enter"),
+    write("Presiona enter"),nl,
     get_char(_),
     write("Introducción"), nl,
-    write("Este proyecto es un sistema experto de diagnostico de enfermedades respiratorias. Se usa un mecanismo de inferencia por encadenamiento hacia atrás. A la lista de síntomas el usuario debe responder s/n. La opción de adicionar información a la base de conocimientos permitirá anexarla en el archivo enf.pl"), nl,
-    write("Presiona enter"),
+    write("Este proyecto es un sistema experto de diagnostico de enfermedades respiratorias. Se usa un mecanismo de inferencia por encadenamiento hacia atrás. A la lista de síntomas el usuario debe responder s/n. La opción de adicionar información a la base de conocimientos permitirá anexarla en el archivo enf.dbs.pl"), nl,
+    write("Presiona enter"),nl,
     get_char(_),
         menu.
 
@@ -15,7 +35,7 @@ menu :-
     write("Menú principal"), nl,
     write("1.- Usar el sistema experto"), nl,
     write("2.- Salir"), nl,
-    write("Presiona 1 o 2 seguido de punto"),
+    write("Presiona 1 o 2 seguido de punto"),nl,
     read(Resp),
     opcion(Resp).
 
@@ -31,29 +51,23 @@ opcion(Resp) :-
 opcion(Resp) :-
     Resp\=1,
     Resp\=2,
-    write("Presiona enter"),
+    write("Presiona enter"),nl,
     get_char(_),
     menu.
 
 despedida :-
     write("Bye"), nl,
-    write("Presiona enter"),
+    write("Presiona enter"),nl,
     get_char(_).
-
-
-enferma:-
-    consult("enf.pl"),
-    fail.
 
 enferma:-
     assert(si(end)),
     assert(no(end)),
     write("¿Introducirá información? <<s/n>>: "),nl,
-    write("Respuesta:"),
+    write("Respuesta:"),nl,
     read(A),
     A=s,
-    not(introducir),
-    save("enf.pl"),!,
+    not(introducir),!,
     write("Diálogo de diagnostico"),nl,
     write("< Responde <<s/n>> >"),nl,
     preguntar([]).
@@ -65,37 +79,38 @@ enferma:-
     purgar.
 
 enferma:-
-    sound(50,100),
-    write("¡No se encuentran enfermedades con los síntomas dados en la base de conocimientos!"),
-    readchar(_),purgar.
+    write("¡No se encuentran enfermedades con los síntomas dados en la base de conocimientos!"),nl,
+    write("Presiona enter"),nl,
+    get_char(_),
+    purgar.
 
 introducir:-
     write("¿Qué enfermedad es? <<minusculas>>"),nl,
-    write("Respuesta:"),
+    write("Respuesta:"),nl,
     read(Object),
     Object\=fin,
     write("Enfermedad < "), write(Object), write(" >"),nl,
     atributos(Object,[]),
     write("Otra enfermedad <<s/n>> ?"),nl,!,
-    write("Respuesta:"),
+    write("Respuesta:"),nl,
     read(Q),Q=s,
     introducir.
 
 atributos(O,List):-
     write("Síntoma <<para terminar fin>>:"),nl,
-    write("Respuesta:  "),
+    write("Respuesta:"),nl,
     read(Attribute),
     Attribute\=fin,
     añadir(Attribute,List,List2),
     atributos(O,List2).
 
 atributos(O,List):-
-    assert(enfe(O,List)),
+    agregar_enf(O,List),
     writelist(List,1),!,nl.
 
 añadir(X,L,[X|L]).
 preguntar(L):-
-    enfe(O,A),
+    enf_bd(O,A),
     not(miembro(O,L)),
     añadir(O,L,L2),
     anterioressi(A),
@@ -103,8 +118,9 @@ preguntar(L):-
     intentar(O,A),
     !,nl,write(O),nl,
     write(" tiene los síntomas presentados"),nl,
-    write("Buscando otra enfermedad..."),
-    readchar(_),
+    write("Buscando otra enfermedad..."),nl,
+    write("Presiona enter"),nl,
+    get_char(_),nl,
     preguntar(L2).
 
 anterioressi(A):-
@@ -138,7 +154,7 @@ intentar(O,[X|T]):-
     intentar(O,T).
 
 intentar(O,[X|T]):-
-    write("Síntoma: ",X," "),
+    write("Síntoma: "),write(X),write(" "),nl,
     read(Q),
     procesar(O,X,Q),!,
     intentar(O,T).
@@ -153,7 +169,7 @@ procesar(O,X,why):-
     write(O      ," POR QUE TIENE: "),nl,
     si(Z), xwrite(Z),nl,
     Z=end,!,
-    write("Síntoma:"),write(X),write("?"),
+    write("Síntoma:"),write(X),write("?"),nl,
     read(Q),
     procesar(O,X,Q),!.
 
@@ -180,73 +196,3 @@ writelist([Head|Tail],1):-N=1+1,
 
 miembro(N,[N|_]).
 miembro(N,[_|T]):-miembro(N|T).
-
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("disnea",["tos","hiperinflacion"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("disnea",["tos","hiperinflacion"]).
-enfe("bronquitis",["moco_bronquial","fiebre"]).
-enfe("enfisema",["fiebre","tos","hiperinflacion"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("disnea",["tos","hiperinflacion"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("gripe",["tos","moco"]).
-enfe("disnea",["tos","hiperinflacion"]).
-enfe("bronquitis",["moco_bronquial","fiebre"]).
-enfe("enfisema",["fiebre","tos","hiperinflacion"]).
-enfe("gripa",["tos","moco"]).
-enfe("tosferina",["fiebre","tos"]).
-enfe("anemia",["fiebre","tos"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("disnea",["tos","hiperinflacion"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("disnea",["tos","hiperinflacion"]).
-enfe("bronquitis",["moco_bronquial","fiebre"]).
-enfe("enfisema",["fiebre","tos","hiperinflacion"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("disnea",["tos","hiperinflacion"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("disnea",["tos","hiperinflacion"]).
-enfe("bronquitis",["moco_bronquial","fiebre"]).
-enfe("enfisema",["fiebre","tos","hiperinflacion"]).
-enfe("gripa",["tos","moco"]).
-enfe("tosferina",["fiebre","tos"]).
-enfe("gripe",["tos","moco"]).
-enfe("anemia",["fiebre","tos"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("disnea",["tos","hiperinflacion"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("disnea",["tos","hiperinflacion"]).
-enfe("bronquitis",["moco_bronquial","fiebre"]).
-enfe("enfisema",["fiebre","tos","hiperinflacion"]).
-enfe("gripe",["tos","moco"]).
-enfe("asma",["moco_bronquial","tos"]).
-enfe("gripe",["tos","moco"]).
