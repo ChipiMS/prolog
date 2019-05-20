@@ -19,7 +19,7 @@ enf_bd(Nombre, Sintomas):-
   with_mutex(enfermedades_bd, enf(Nombre, Sintomas)).
 
 presenta :-
-    write("Instituto tecnológico de Celaya"), nl,
+    write("Instituto Tecnológico de Celaya"), nl,
     write("Sistema de diagnostico de enfermedades respiratorias"), nl,
     write("Aplicación de encadenamiento hacia atrás"), nl,
     write("Celaya, Guanajuato, México"), nl,
@@ -105,7 +105,7 @@ atributos(O,List):-
     atributos(O,List2).
 
 atributos(O,List):-
-    agregar_enf(O,List),
+    agregar_enf(O, List),
     writelist(List,1),!,nl.
 
 añadir(X,L,[X|L]).
@@ -165,8 +165,8 @@ procesar(_,X,n):-
         asserta(no(X)),!,fail.
 
 procesar(O,X,why):-
-    write("CREO QUE PUEDE SER "),nl,
-    write(O      ," POR QUE TIENE: "),nl,
+    write("Creo que puede ser "),nl,
+    write(O," porque tiene: "),nl,
     si(Z), xwrite(Z),nl,
     Z=end,!,
     write("Síntoma:"),write(X),write("?"),nl,
@@ -192,7 +192,7 @@ writelist([Head|Tail],3):-
     write(Head),nl,writelist(Tail,1).
 
 writelist([Head|Tail],1):-N=1+1,
-    write(Head," "), writelist(Tail,N).
+    write(Head),write(" "), writelist(Tail,N).
 
 miembro(N,[N|_]).
 miembro(N,[_|T]):-miembro(N|T).
