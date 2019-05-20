@@ -110,7 +110,7 @@ atributos(O,List):-
 
 añadir(X,L,[X|L]).
 preguntar(L):-
-    enf_bd(O,A),
+    enf(O,A),
     not(miembro(O,L)),
     añadir(O,L,L2),
     anterioressi(A),
@@ -195,4 +195,4 @@ writelist([Head|Tail],1):-N=1+1,
     write(Head),write(" "), writelist(Tail,N).
 
 miembro(N,[N|_]).
-miembro(N,[_|T]):-miembro(N|T).
+miembro(N,[_|T]):-miembro(N,T).
