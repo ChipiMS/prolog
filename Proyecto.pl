@@ -71,6 +71,8 @@ actualizar:-
     menu.
 
 enferma:-
+    assertz(si(end)),
+    assertz(no(end)),
     write("Diálogo de diagnostico"),nl,
     write("< Responde << s/n >> >"),nl,
     preguntar([]),
