@@ -34,8 +34,9 @@ presenta :-
 menu :-
     write("Menú principal"), nl,
     write("1.- Usar el sistema experto"), nl,
-    write("2.- Salir"), nl,
-    write("Presiona 1 o 2 seguido de punto"),nl,
+    write("2.- Actualizar base de hechos"), nl,
+    write("3.- Salir"), nl,
+    write("Presiona 1, 2 o 3 seguido de punto"),nl,
     read(Resp),
     opcion(Resp).
 
@@ -46,11 +47,16 @@ opcion(Resp) :-
 
 opcion(Resp) :-
     Resp=2,
+    actualizar.
+
+opcion(Resp) :-
+    Resp=3,
     despedida.
 
 opcion(Resp) :-
     Resp\=1,
     Resp\=2,
+    Resp\=3,
     write("Presiona enter"),nl,
     get_char(_),
     menu.
@@ -60,17 +66,9 @@ despedida :-
     write("Presiona enter"),nl,
     get_char(_).
 
-enferma:-
-    assert(si(end)),
-    assert(no(end)),
-    write("¿Introducirá información? <<s/n>>: "),nl,
-    write("Respuesta:"),nl,
-    read(A),
-    A=s,
-    not(introducir),!,
-    write("Diálogo de diagnostico"),nl,
-    write("< Responde <<s/n>> >"),nl,
-    preguntar([]).
+actualizar:-
+    not(introducir),
+    menu.
 
 enferma:-
     write("Diálogo de diagnostico"),nl,
@@ -106,7 +104,7 @@ atributos(O,List):-
 
 atributos(O,List):-
     agregar_enf(O, List),
-    writelist(List,1),!,nl.
+    writelist(List).
 
 añadir(X,L,[X|L]).
 preguntar(L):-
@@ -187,12 +185,9 @@ purgar :-
 juntar([],List,List).
 juntar([X|L1],List2,[X|L3]):- juntar(L1,List2,L3).
 
-writelist([],_).
-writelist([Head|Tail],3):-
-    write(Head),nl,writelist(Tail,1).
-
-writelist([Head|Tail],1):-N=1+1,
-    write(Head),write(" "), writelist(Tail,N).
+writelist([]).
+writelist([Head|Tail]):-
+    write(Head),nl,writelist(Tail).
 
 miembro(N,[N|_]).
 miembro(N,[_|T]):-miembro(N,T).
