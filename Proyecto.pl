@@ -75,7 +75,7 @@ enferma:-
     assertz(no(end)),
     write("Diálogo de diagnostico"),nl,
     write("< Responde << s/n >> >"),nl,
-    preguntar([]),
+    not(preguntar()),
     purgar.
 
 enferma:-
@@ -109,18 +109,17 @@ atributos(O,List):-
     writelist(List).
 
 añadir(X,L,[X|L]).
-preguntar(L):-
+
+preguntar():-
     enf(O,A),
-    not(miembro(O,L)),
-    añadir(O,L,L2),
     anterioresno(A),
     intentar(O,A),
-    !,nl,write(O),
+    nl,write(O),
     write(" tiene los síntomas presentados"),nl,
     write("Buscando otra enfermedad..."),nl,
     write("Presiona enter"),nl,
     get_char(_),
-    preguntar(L2).
+    fail.
 
 anterioresno(A):-
     no(T),!,
