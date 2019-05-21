@@ -113,27 +113,14 @@ preguntar(L):-
     enf(O,A),
     not(miembro(O,L)),
     añadir(O,L,L2),
-    anterioressi(A),
     anterioresno(A),
     intentar(O,A),
-    !,nl,write(O),nl,
+    !,nl,write(O),
     write(" tiene los síntomas presentados"),nl,
     write("Buscando otra enfermedad..."),nl,
     write("Presiona enter"),nl,
-    get_char(_),nl,
+    get_char(_),
     preguntar(L2).
-
-anterioressi(A):-
-    si(T),!,
-    xanterioressi(T,A,[]),!.
-
-xanterioressi(end,_,_):- !.
-
-xanterioressi(T,A,L):-
-    miembro(T,A),!,
-    añadir(T,L,L2),
-    si(X), not(miembro(X,L2)),!,
-    xanterioressi(X,A,L2).
 
 anterioresno(A):-
     no(T),!,
@@ -142,7 +129,7 @@ anterioresno(A):-
 xanterioresno(end,_,_):- !.
 
 xanterioresno(T,A,L):-
-    miembro(T,A),!,
+    not(miembro(T,A)),!,
     añadir(T,L,L2),
     no(X), not(miembro(X,L2)),!,
     xanterioresno(X,A,L2).
