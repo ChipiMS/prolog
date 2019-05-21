@@ -106,7 +106,7 @@ atributos(O,List):-
 
 atributos(O,List):-
     agregar_enf(O, List),
-    writelist(List).
+    writelist(List), nl.
 
 añadir(X,L,[X|L]).
 
@@ -115,7 +115,7 @@ preguntar():-
     anterioresno(A),
     intentar(O,A),
     nl,write(O),
-    write(" tiene los síntomas presentados"),nl,
+    write(" tiene los síntomas presentados: "),writelist(A),nl,
     write("Buscando otra enfermedad..."),nl,
     write("Presiona enter"),nl,
     get_char(_),
@@ -175,7 +175,7 @@ juntar([X|L1],List2,[X|L3]):- juntar(L1,List2,L3).
 
 writelist([]).
 writelist([Head|Tail]):-
-    write(Head),nl,writelist(Tail).
+    write(Head),write(" "),writelist(Tail).
 
 miembro(N,[N|_]).
 miembro(N,[_|T]):-miembro(N,T).
